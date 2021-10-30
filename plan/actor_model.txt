@@ -1,0 +1,118 @@
+Авторизация:
+
+Actor: AnyUser
+Command: AuthUser
+Data: UserName + Password
+Event: Account.Logined
+
+Taск-трекер:
+
+Новые таски может создавать кто угодно (администратор, начальник, разработчик, менеджер и любая другая роль). У задачи должны быть описание, статус (выполнена или нет) и попуг, на которого заассайнена задача.
+Actor: AnyUser
+Command: CreateTask
+Data: Title + Description + Status + Assigned
+Event: Event.TaskCreated
+
+Менеджеры или администраторы должны иметь кнопку «заассайнить задачи», которая возьмёт все открытые задачи и рандомно заассайнит каждую на любого из сотрудников (Update: кроме менеджера и администратора) . Не успел закрыть задачу до реассайна — сорян, делай следующую.
+
+Actor: Manager/Admin
+Command: AssignedTask
+Data: OpenTaskIds + PopugIds
+Event: Event.AssignTasks 
+
+При нажатии кнопки «заассайнить задачи» все текущие не закрытые задачи должны быть случайным образом перетасованы между каждым аккаунтом в системе
+
+Actor: Manager/Admin
+Command: AssignedTask
+Data: ActiveTaskIds + PopugIds
+Event: Event.ShuffleTasks 
+
+Каждый сотрудник должен иметь возможность видеть в отдельном месте список заассайненных на него задач + отметить задачу выполненной.
+
+Actor: Popug
+Command: GetAssignedTasks
+Data: PopugId + PopugAssignedTasks
+Event: ??? - операция синхронная, ивент не нужен?
+
+Actor: Popug
+Command: MarkTaskAsCompleted
+Data: PopugId + TaskId + TaskStatus
+Event: Event.UpdateTaskStatus
+
+
+Аккаунтинг: кто сколько денег заработал
+
+Аккаунтинг должен быть в отдельном дашборде и доступным только для администраторов и бухгалтеров.
+
+Actor: Admin/Accountant
+Command: GetMoneyEarned - (sum(completed task amount) + sum(created task fee)) * -1
+Data: Day + AuditLog
+Event: ??? - операция синхронная, ивент не нужен?
+
+Actor: Admin/Accountant
+Command: GetMoneyEarnedByDays
+Data: Day + AuditLog
+Event: ??? - операция синхронная, ивент не нужен?
+
+Actor: Popug
+Command: GetMoneyEarned
+Data: Day + AuditLog + Balance
+Event: ??? - операция синхронная, ивент не нужен?
+
+
+У каждого из сотрудников должен быть свой счёт, который показывает, сколько за сегодня он получил денег. У счёта должен быть аудитлог того, за что были списаны или начислены деньги, с подробным описанием каждой из задач.
+
+Actor: Popug
+Command: GetAuditLog
+Data: TaskId + TaskAuditLog
+Event: ??? - операция синхронная, ивент не нужен?
+
+Цены на задачу определяется единоразово, в момент появления в системе (можно с минимальной задержкой)
+
+Actor: TaskCreator - пользователь из Таск-трекера, создавший задачу
+Command: SetTaskPrice
+Data: TaskId + TaskPrice
+Event: ??? - операция выполняется внутри сервиса при получении ивента из Таск-трекера
+
+Формула, которая говорит сколько начислить денег сотруднику для выполненой задачи — `rand(20..40)$`
+
+Actor: TaskStatusChainger - пользователь из Таск-трекера, изменивший статус задачи
+Command: TaskCompleted
+Data: TaskId + AssigneeId
+Event: ??? - операция выполняется внутри сервиса при получении ивента из Таск-трекера
+
+Формула, которая говорит сколько списать денег с сотрудника при ассайне задачи — rand(-10..-20)$
+
+Actor: TaskStatusChainger - пользователь из Таск-трекера, раздавший задачи
+Command: TaskAssigned
+Data: TaskId + AssigneeId
+Event: ??? - операция выполняется внутри сервиса при получении ивента из Таск-трекера
+
+В конце дня необходимо:
+??? как считаем конец дня при работе в разных часовых поясах? 
+    1) считать сколько денег сотрудник получил за рабочий день
+    2) отправлять на почту сумму выплаты
+После выплаты баланса (в конце дня) он должен обнуляться, и в аудитлоге всех операций аккаунтинга должно быть отображено, что была выплачена сумма.
+
+Actor: CronJob / CeleryPeriodicTask - любой механизм выполнения задачи по расписанию
+Command: CountPopugMoneyEarned
+Data: PopugIds + TaskIds + Day
+Event: ??? - операция выполняется внутри сервиса при наступлении времени вызова
+
+
+Аналитика
+
+Нужно указывать, сколько заработал топ-менеджмент за сегодня и сколько попугов ушло в минус.
+
+Actor: Admin / Accountant
+Command: GetDayStatistic
+Data: AudigLog + Day
+Event: ??? - операция синхронная, ивент не нужен?
+
+
+Нужно указывать, сколько заработал топ-менеджмент за сегодня и сколько попугов ушло в минус.
+
+Actor: Admin / Accountant
+Command: GetMostExpensiveTasks
+Data: AudigLog
+Event: ??? - операция синхронная, ивент не нужен?
