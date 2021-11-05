@@ -24,6 +24,7 @@ class UserBase(BaseModel):
     id: int
     email: EmailStr
     is_active: bool
+    role: Role
 
 
 class UserCreate(BaseModel):
