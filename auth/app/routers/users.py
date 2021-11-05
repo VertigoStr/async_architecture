@@ -1,8 +1,13 @@
 from app.schemas import users
 from app.utils import users as users_utils
-from app.utils.dependencies import get_current_user
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
+from app.utils.dependencies import (
+    get_current_user,
+    produce_user_updated,
+    produce_user_inactive,
+    produce_user_created
+)
 
 from app.models.users import Role
 
@@ -36,7 +41,9 @@ async def create_user(user: users.UserCreate, current_user: users.User = Depends
     db_user = await users_utils.get_user_by_email(email=user.email)
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
-    return await users_utils.create_user(user=user)
+    user = await users_utils.create_user(user=user)
+    await produce_user_created(user['id'])
+    return user
 
 
 @router.patch("/user", response_model=users.User)
@@ -46,7 +53,9 @@ async def update_user(user: users.UserUpdate, current_user: users.User = Depends
     db_user = await users_utils.get_user(user.id)
     if not db_user:
         raise HTTPException(status_code=400, detail="User not found")
-    return await users_utils.update_user(user=user)
+    user = await users_utils.update_user(user=user)
+    await produce_user_updated(user['id'])
+    return user
 
 
 @router.get("/user/{user_id}")
@@ -67,6 +76,7 @@ async def delete_user(user_id: int, current_user: users.User = Depends(get_curre
     if not db_user:
         raise HTTPException(status_code=400, detail="User not found")
     await users_utils.delete_user(user_id)
+    await produce_user_inactive(user_id)
     return {'status': 'ok'}
 
 

@@ -23,5 +23,5 @@ async def create_task(task_id: int, task: tasks.TaskUpdateStatus, current_user: 
 @router.get("/tasks")
 async def get_posts(page: int = 1):
     total_count = await tasks_utils.get_tasks_count()
-    tasks = await tasks_utils.get_tasks(page)
-    return {"total_count": total_count, "results": tasks}
+    task_list = await tasks_utils.get_tasks(page)
+    return {"total_count": total_count, "results": task_list}

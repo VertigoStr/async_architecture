@@ -46,3 +46,33 @@ async def update_or_create_user(token: str, expires: str, user_data: users.UserB
             expires=expires
         )
         await database.execute(query)
+
+
+async def update_user(data: dict):
+    query = users_table.update().where(
+        users_table.c.id == data['id']
+    ).values(
+        email=data['email'],
+        role=data['role'],
+        is_deleted=not data['is_active'],
+    )
+    await database.execute(query)
+
+
+async def create_user(data: dict):
+    query = users_table.insert().values(
+        id=data['id'],
+        email=data['email'],
+        role=data['role'],
+        is_deleted=not data['is_active'],
+    )
+    await database.execute(query)
+
+
+async def make_user_inactive(data: dict):
+    query = users_table.update().where(
+        users_table.c.id == data['id']
+    ).values(
+        is_deleted=True
+    )
+    await database.execute(query)
