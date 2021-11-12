@@ -11,7 +11,7 @@ router = APIRouter()
 
 @router.get("/balance")
 async def get_balance(current_user: users.UserBase = Depends(get_current_user)):
-    return await tasks_utils.get_balance(user_id=current_user.id)
+    return await tasks_utils.get_balance(user_id=current_user['id'])
 
 
 @router.get("/statistic")
@@ -26,4 +26,4 @@ async def get_earned_today(current_user: users.UserBase = Depends(get_current_us
 
 @router.get("/me/earned")
 async def get_earned_today(current_user: users.UserBase = Depends(get_current_user)):
-    return await tasks_utils.get_earned_money(datetime.now(), user_id=current_user.id)
+    return await tasks_utils.get_earned_money(datetime.now(), user_id=current_user['id'])

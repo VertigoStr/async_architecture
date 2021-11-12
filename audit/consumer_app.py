@@ -7,7 +7,7 @@ from app.utils import users as users_utils
 from app.utils import tasks as tasks_utils
 
 
-KAFKA_TOPIC = os.getenv('KAFKA_TOPIC', 'account')
+KAFKA_TOPIC = os.getenv('KAFKA_TOPIC', 'task')
 KAFKA_BOOTSTRAP_SERVERS = os.getenv('KAFKA_BOOTSTRAP_SERVERS', 'localhost:9092')
 
 loop = asyncio.get_event_loop()
@@ -41,7 +41,7 @@ ACTION_MAP = {
     'user_updated': update_user,
     'user_created': create_user,
     'user_inactive': make_user_inactive,
-    'set_task_price': set_task_price,
+    'task_created': set_task_price,
     'task_assigned': task_assigned,
     'task_completed': task_completed,
 }
