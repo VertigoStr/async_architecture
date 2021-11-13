@@ -1,6 +1,8 @@
 import json
 import os
 import asyncio
+from app.schema import schema
+from jsonschema import validate
 from aiokafka import AIOKafkaConsumer
 from app.models.database import database
 from app.utils import users as users_utils
@@ -42,6 +44,9 @@ async def consume():
     try:
         async for msg in consumer:
             message = json.loads(msg.value.decode())
+            version = message['version']
+            action = message['action']
+            validate(instance=message, schema=schema[version][action])
             await ACTION_MAP[message['action']](message['data'])
     finally:
         await consumer.stop()

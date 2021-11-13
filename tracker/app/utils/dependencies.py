@@ -23,6 +23,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
 
 async def produce_task_created(task_id: int):
     await send_notice({
+        'version': 'v1',
         'action': 'task_created',
         'data': {
             'task_id': task_id,
@@ -32,6 +33,7 @@ async def produce_task_created(task_id: int):
 
 async def produce_task_assigned(user_id: int, task_id: int):
     await send_notice({
+        'version': 'v1',
         'action': 'task_assigned',
         'data': {
             'task_id': task_id,
@@ -42,6 +44,7 @@ async def produce_task_assigned(user_id: int, task_id: int):
 
 async def produce_task_completed(user_id: int, task_id: int):
     await send_notice({
+        'version': 'v1',
         'action': 'task_completed',
         'data': {
             'task_id': task_id,
