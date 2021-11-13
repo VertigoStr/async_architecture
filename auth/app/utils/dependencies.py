@@ -24,6 +24,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
 async def produce_user_updated(user_id: int):
     user = await users_utils.get_user(user_id)
     await send_notice({
+        'version': 'v1',
         'action': 'user_updated',
         'data': {
             'id': user['id'],
@@ -37,6 +38,7 @@ async def produce_user_updated(user_id: int):
 async def produce_user_created(user_id: int):
     user = await users_utils.get_user(user_id)
     await send_notice({
+        'version': 'v1',
         'action': 'user_created',
         'data': {
             'id': user['id'],
@@ -49,6 +51,7 @@ async def produce_user_created(user_id: int):
 
 async def produce_user_inactive(user_id: int):
     await send_notice({
+        'version': 'v1',
         'action': 'user_inactive',
         'data': {
             'id': user_id,
